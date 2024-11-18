@@ -1,6 +1,8 @@
 import React from 'react';
 import styles from '../page.module.css';
 
+
+const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
 const WeatherMap = ({ lat, lon, layer, apiKey }) => {
   const urlTemplate = `https://tile.openweathermap.org/map/${layer}/{z}/{x}/{y}.png?appid=${apiKey}`;
 
