@@ -1,33 +1,43 @@
-'use client';
-import { useEffect, useState } from 'react';
-import styles from './page.module.css';
-import Loading from './component/Load'; // Assure-toi que le chemin est correct
-import WeatherMap from './component/WeatherMap'; // Assure-toi que le chemin est correct
+"use client";
+import { useEffect, useState } from "react";
+import styles from "./page.module.css";
+import Loading from "./component/Load"; // Assure-toi que le chemin est correct
+import WeatherMap from "./component/WeatherMap"; // Assure-toi que le chemin est correct
 
 export default function Home() {
   const [datas, setDatas] = useState(null);
-  const [city, setCity] = useState('');
+  const [city, setCity] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false); // État pour gérer le chargement
   const [error, setError] = useState(null); // État pour gérer les erreurs
 
   const meteo = async () => {
-    if (city.trim() === '') return; // N'effectue pas la recherche si la ville est vide
+    if (city.trim() === "") return; // N'effectue pas la recherche si la ville est vide
     setLoading(true); // Commence le chargement
     setError(null); // Réinitialise l'erreur
-    const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY; // Ta clé API valide
+
+    const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
+    if (!apiKey) {
+      console.error("Clé API OpenWeather manquante");
+      setError(
+        "Clé API OpenWeather manquante. Veuillez configurer la variable d'environnement."
+      );
+      setLoading(false);
+      return;
+    }
+
     const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&lang=fr`;
     try {
       const response = await fetch(url);
       if (!response.ok) {
-        throw new Error('Ville non trouvée');
+        throw new Error("Ville non trouvée");
       }
       const data = await response.json();
-      console.log('Data:', data);
+      console.log("Data:", data);
       setDatas(data);
-    } catch (error) {
-      console.error('Error:', error);
-      setError(error.message); // Définit l'erreur
+    } catch (err) {
+      console.error("Error:", err);
+      setError(err.message); // Définit l'erreur
     } finally {
       setLoading(false); // Termine le chargement
     }
@@ -44,9 +54,9 @@ export default function Home() {
     try {
       const response = await fetch(url);
       const data = await response.json();
-      setSuggestions(data.map(place => place.display_name));
+      setSuggestions(data.map((place) => place.display_name));
     } catch (error) {
-      console.error('Erreur lors de la récupération des suggestions :', error);
+      console.error("Erreur lors de la récupération des suggestions :", error);
     }
   };
 
@@ -79,7 +89,9 @@ export default function Home() {
           placeholder="Entrez le nom d'une ville"
           autoComplete="off"
         />
-        <button className={styles.button} onClick={handleSearch}>Rechercher</button>
+        <button className={styles.button} onClick={handleSearch}>
+          Rechercher
+        </button>
         {suggestions.length > 0 && (
           <ul className={styles.suggestions}>
             {suggestions.map((suggestion, index) => (
@@ -90,17 +102,19 @@ export default function Home() {
           </ul>
         )}
       </div>
-      
+
       <div>
         {loading ? (
           <Loading />
         ) : (
           <>
             {error ? (
-              <p style={{ color: 'red' }}>{error}</p>
+              <p style={{ color: "red" }}>{error}</p>
             ) : (
               datas && (
-                <p>{`${datas.name}: ${(datas.main.temp - 273.15).toFixed(2)}°C`}</p>
+                <p className={styles.temp}>{`${datas.name}: ${(
+                  datas.main.temp - 273.15
+                ).toFixed(2)}°C`}</p>
               )
             )}
           </>
@@ -123,27 +137,136 @@ export default function Home() {
       {datas && !error && (
         <div className={styles.detail}>
           <h3>{`Plus en détail à ${datas.name}`}</h3>
-          <ul>
-            <li>Coordonnées : {`Longitude: ${datas.coord.lon}, Latitude: ${datas.coord.lat}`}</li>
-            <li>Température : {`${(datas.main.temp - 273.15).toFixed(2)}°C`}</li>
-            <li>Ressenti : {`${(datas.main.feels_like - 273.15).toFixed(2)}°C`}</li>
-            <li>Température Min : {`${(datas.main.temp_min - 273.15).toFixed(2)}°C`}</li>
-            <li>Température Max : {`${(datas.main.temp_max - 273.15).toFixed(2)}°C`}</li>
-            <li>Pression : {`${datas.main.pressure} hPa`}</li>
-            <li>Humidité : {`${datas.main.humidity}%`}</li>
-            <li>Niveau de la mer : {`${datas.main.sea_level} hPa`}</li>
-            <li>Niveau du sol : {`${datas.main.grnd_level} hPa`}</li>
-            <li>Visibilité : {`${datas.visibility} mètres`}</li>
-            <li>Vent : {`Vitesse: ${datas.wind.speed} m/s, Direction: ${datas.wind.deg}°, Rafales: ${datas.wind.gust} m/s`}</li>
-            <li>Nuages : {`${datas.clouds.all}%`}</li>
-            <li>Lever du soleil : {new Date(datas.sys.sunrise * 1000).toLocaleTimeString()}</li>
-            <li>Coucher du soleil : {new Date(datas.sys.sunset * 1000).toLocaleTimeString()}</li>
-          </ul>
-          <WeatherMap lat={datas.coord.lat} lon={datas.coord.lon} layer="clouds_new" apiKey={process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY} />
-          
+          <div className={styles.weatherDetails}>
+            <div className={styles.weatherGroup}>
+              <h4>Informations générales</h4>
+              <div className={styles.weatherItem}>
+                <span className={styles.weatherLabel}>Coordonnées</span>
+                <span className={styles.weatherValue}>
+                  {`Lon: ${datas.coord.lon}`}
+                  <br />
+                  {`Lat: ${datas.coord.lat}`}
+                </span>
+              </div>
+              <div className={styles.weatherItem}>
+                <span className={styles.weatherLabel}>Visibilité</span>
+                <span
+                  className={styles.weatherValue}
+                >{`${datas.visibility} mètres`}</span>
+              </div>
+              <div className={styles.weatherItem}>
+                <span className={styles.weatherLabel}>Nuages</span>
+                <span
+                  className={styles.weatherValue}
+                >{`${datas.clouds.all}%`}</span>
+              </div>
+            </div>
+
+            <div className={styles.weatherGroup}>
+              <h4>Températures</h4>
+              <div className={styles.weatherItem}>
+                <span className={styles.weatherLabel}>Température</span>
+                <span className={styles.weatherValue}>{`${(
+                  datas.main.temp - 273.15
+                ).toFixed(2)}°C`}</span>
+              </div>
+              <div className={styles.weatherItem}>
+                <span className={styles.weatherLabel}>Ressenti</span>
+                <span className={styles.weatherValue}>{`${(
+                  datas.main.feels_like - 273.15
+                ).toFixed(2)}°C`}</span>
+              </div>
+              <div className={styles.weatherItem}>
+                <span className={styles.weatherLabel}>Min / Max</span>
+                <span className={styles.weatherValue}>
+                  {`${(datas.main.temp_min - 273.15).toFixed(2)}°C / ${(
+                    datas.main.temp_max - 273.15
+                  ).toFixed(2)}°C`}
+                </span>
+              </div>
+            </div>
+
+            <div className={styles.weatherGroup}>
+              <h4>Conditions atmosphériques</h4>
+              <div className={styles.weatherItem}>
+                <span className={styles.weatherLabel}>Pression</span>
+                <span
+                  className={styles.weatherValue}
+                >{`${datas.main.pressure} hPa`}</span>
+              </div>
+              <div className={styles.weatherItem}>
+                <span className={styles.weatherLabel}>Humidité</span>
+                <span
+                  className={styles.weatherValue}
+                >{`${datas.main.humidity}%`}</span>
+              </div>
+              {datas.main.sea_level && (
+                <div className={styles.weatherItem}>
+                  <span className={styles.weatherLabel}>Niveau de la mer</span>
+                  <span
+                    className={styles.weatherValue}
+                  >{`${datas.main.sea_level} hPa`}</span>
+                </div>
+              )}
+              {datas.main.grnd_level && (
+                <div className={styles.weatherItem}>
+                  <span className={styles.weatherLabel}>Niveau du sol</span>
+                  <span
+                    className={styles.weatherValue}
+                  >{`${datas.main.grnd_level} hPa`}</span>
+                </div>
+              )}
+            </div>
+
+            <div className={styles.weatherGroup}>
+              <h4>Vent</h4>
+              <div className={styles.weatherItem}>
+                <span className={styles.weatherLabel}>Vitesse</span>
+                <span
+                  className={styles.weatherValue}
+                >{`${datas.wind.speed} m/s`}</span>
+              </div>
+              <div className={styles.weatherItem}>
+                <span className={styles.weatherLabel}>Direction</span>
+                <span
+                  className={styles.weatherValue}
+                >{`${datas.wind.deg}°`}</span>
+              </div>
+              {datas.wind.gust && (
+                <div className={styles.weatherItem}>
+                  <span className={styles.weatherLabel}>Rafales</span>
+                  <span
+                    className={styles.weatherValue}
+                  >{`${datas.wind.gust} m/s`}</span>
+                </div>
+              )}
+            </div>
+
+            <div className={styles.weatherGroup}>
+              <h4>Soleil</h4>
+              <div className={styles.weatherItem}>
+                <span className={styles.weatherLabel}>Lever</span>
+                <span className={styles.weatherValue}>
+                  {new Date(datas.sys.sunrise * 1000).toLocaleTimeString()}
+                </span>
+              </div>
+              <div className={styles.weatherItem}>
+                <span className={styles.weatherLabel}>Coucher</span>
+                <span className={styles.weatherValue}>
+                  {new Date(datas.sys.sunset * 1000).toLocaleTimeString()}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <WeatherMap
+            lat={datas.coord.lat}
+            lon={datas.coord.lon}
+            layer="clouds_new"
+            apiKey={process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}
+          />
         </div>
       )}
     </section>
   );
 }
-
