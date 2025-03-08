@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
+import Image from "next/image";
 import Loading from "./component/Load"; // Assure-toi que le chemin est correct
 import WeatherMap from "./component/WeatherMap"; // Assure-toi que le chemin est correct
 
@@ -78,7 +79,15 @@ export default function Home() {
 
   return (
     <section className={styles.div}>
-      <h1 className={styles.h1}>Météo</h1>
+      <h1 className={styles.h1}>La météo en temps réel</h1>
+      <Image
+        className={styles.img}
+        src="/favicon-32x32.png"
+        alt="Météo"
+        width={42}
+        height={42}
+        priority={true} // Ajout de l'attribut priority
+      />
       <div className={styles.recherche}>
         <input
           type="text"

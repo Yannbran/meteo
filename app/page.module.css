@@ -7,7 +7,11 @@
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow);
 }
-
+.img {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto 1rem auto;
+}
 .temp {
   font-size: 2rem;
 }
