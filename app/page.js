@@ -9,8 +9,43 @@ export default function Home() {
   const [datas, setDatas] = useState(null);
   const [city, setCity] = useState("");
   const [suggestions, setSuggestions] = useState([]);
-  const [loading, setLoading] = useState(false); // État pour gérer le chargement
-  const [error, setError] = useState(null); // État pour gérer les erreurs
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [currentDateTime, setCurrentDateTime] = useState(new Date());
+  // État pour déterminer si le composant est monté côté client
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    // Marquer que le composant est monté côté client
+    setIsClient(true);
+
+    const timer = setInterval(() => {
+      setCurrentDateTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  // Formater la date en français (seulement la date)
+  const formatDate = (date) => {
+    const options = {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+    return date.toLocaleDateString("fr-FR", options);
+  };
+
+  // Formater l'heure
+  const formatTime = (date) => {
+    const options = {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    };
+    return date.toLocaleTimeString("fr-FR", options);
+  };
 
   const meteo = async () => {
     if (city.trim() === "") return; // N'effectue pas la recherche si la ville est vide
@@ -80,6 +115,11 @@ export default function Home() {
   return (
     <section className={styles.div}>
       <h1 className={styles.h1}>La météo en temps réel</h1>
+      <p className={styles.dateTime}>{formatDate(currentDateTime)}</p>
+      {/* N'afficher l'heure que lorsque le composant est monté côté client */}
+      {isClient && (
+        <p className={styles.timeDisplay}>{formatTime(currentDateTime)}</p>
+      )}
       <Image
         className={styles.img}
         src="/favicon-32x32.png"

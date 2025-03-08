@@ -19,11 +19,32 @@
   font-size: 2.5rem;
   text-align: center;
   margin-bottom: var(--space-xl);
-  margin-top: 2rem;
-  color: var(--primary);
+  margin: 2rem auto;
+  color: white;
+  background-color: rgb(0, 0, 208);
+  padding: 1rem;
   font-weight: 800;
+  border-radius: 3rem;
+  width: 72%;
+}
+/* À ajouter dans votre fichier page.module.css */
+.dateTime {
+  font-size: 1.1rem;
+  color: #666;
+  margin-top: 0;
+  margin-bottom: 0.3rem;
+  text-align: center;
+  font-style: italic;
 }
 
+.timeDisplay {
+  font-size: 1.2rem;
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-weight: bold;
+}
 /* Conteneur de recherche */
 .recherche {
   display: flex;
